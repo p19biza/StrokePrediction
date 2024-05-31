@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Stroke Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            font-size: 14px;
+            background: url('/static/background.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+        .container {
+            max-width: 500px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 8px;
+        }
+        .btn-primary {
+            margin-top: 10px;
+        }
+        #result-modal .modal-content {
+            text-align: center;
+        }
+        #result-modal .modal-body {
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="text-center">Stroke Risk Prediction</h2>
+        <form id="prediction-form">
+            <div class="form-group">
+                <label for="gender">Gender:</label>
+                <select class="form-control form-control-sm" id="gender" name="gender" required>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="age">Age:</label>
+                <input type="number" step="0.1" min="0.1" class="form-control form-control-sm" id="age" name="age" required>
+            </div>
+            <div class="form-group">
+                <label for="avg_glucose_level">Average Glucose Level:</label>
+                <input type="number" step="0.01" min="40" class="form-control form-control-sm" id="avg_glucose_level" name="avg_glucose_level" required>
+            </div>
+            <div class="form-group">
+                <label for="heart_disease">Heart Disease:</label>
+                <select class="form-control form-control-sm" id="heart_disease" name="heart_disease" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="hypertension">Hypertension:</label>
+                <select class="form-control form-control-sm" id="hypertension" name="hypertension" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="bmi">BMI:</label>
+                <input type="number" step="0.01" min="5" class="form-control form-control-sm" id="bmi" name="bmi" required>
+            </div>
+            <div class="form-group">
+                <label for="work_type">Work Type:</label>
+                <select class="form-control form-control-sm" id="work_type" name="work_type" required>
+                    <option value="private">Private</option>
+                    <option value="Self-employed">Self-employed</option>
+                    <option value="children">Children</option>
+                    <option value="Govt_job">Government Job</option>
+                    <option value="Never_worked">Never worked</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="smoking_status">Smoking Status:</label>
+                <select class="form-control form-control-sm" id="smoking_status" name="smoking_status" required>
+                    <option value="never smoked">Never smoked</option>
+                    <option value="Unknown">Unknown</option>
+                    <option value="formerly smoked">Formerly smoked</option>
+                    <option value="smokes">Smokes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="residence_type">Residence Type:</label>
+                <select class="form-control form-control-sm" id="residence_type" name="residence_type" required>
+                    <option value="rural">Rural</option>
+                    <option value="urban">Urban</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="ever_married">Ever Married:</label>
+                <select class="form-control form-control-sm" id="ever_married" name="ever_married" required>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Predict</button>
+        </form>
+    </div>
+
+    <!-- Modal for Result -->
+    <div class="modal fade" id="result-modal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="resultModalLabel">Prediction Result</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="result"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery and Bootstrap Bundle (includes Popper) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const response = await fetch('/predict', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = result.stroke_prediction;
+            $('#result-modal').modal('show');
+        });
+    </script>
+</body>
+</html>
