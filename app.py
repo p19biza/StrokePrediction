@@ -34,15 +34,13 @@ def predict():
     hypertension = 1 if hypertension == 'yes' else 0
     ever_married = 1 if ever_married == 'yes' else 0
     residence_type = 1 if residence_type == 'urban' else 0
-    
-    # Assuming the same encoding used during training
     work_type_mapping = {'private': 0, 'Self-employed': 1, 'children': 2, 'Govt_job': 3, 'Never_worked': 4}
     smoking_status_mapping = {'never smoked': 0, 'Unknown': 1, 'formerly smoked': 2, 'smokes': 3}
     
     work_type = work_type_mapping[work_type]
     smoking_status = smoking_status_mapping[smoking_status]
 
-    # Create a DataFrame for the model in the correct order
+    # DataFrame for the model
     input_data = pd.DataFrame([[
         gender, age, hypertension, heart_disease, ever_married, work_type, 
         residence_type, avg_glucose_level, bmi, smoking_status
@@ -53,7 +51,7 @@ def predict():
     
     # Make prediction
     prediction = model.predict(input_data)[0]
-    result = "at risk of stroke" if prediction == 1 else "not at risk of stroke"
+    result = "Υπάρχει κίνδυνος εγκεφαλικού" if prediction == 1 else "Δεν υπάρχει κίνδυνος εγκεφαλικού"
 
     return jsonify({'stroke_prediction': result})
 

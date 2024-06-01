@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Stroke Prediction</title>
+    <title>Πρόβλεψη Εγκεφαλικού Επεισοδίου</title>
     <!-- Bootstrap CSS -->
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -23,8 +23,11 @@
         .form-group {
             margin-bottom: 8px;
         }
-        .btn-primary {
-            margin-top: 10px;
+        .btn-group {
+            width: 100%;
+        }
+        .btn-group .btn {
+            width: 50%;
         }
         #result-modal .modal-content {
             text-align: center;
@@ -32,39 +35,51 @@
         #result-modal .modal-body {
             font-size: 18px;
         }
+        #disclaimer-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+        #disclaimer {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            max-width: 300px;
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 class="text-center">Stroke Risk Prediction</h2>
+        <h2 class="text-center">Πρόβλεψη Εγκεφαλικού Επεισοδίου</h2>
         <form id="prediction-form">
             <div class="form-group">
-                <label for="gender">Gender:</label>
+                <label for="gender">Φύλλο:</label>
                 <select class="form-control form-control-sm" id="gender" name="gender" required>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
+                    <option value="male">Άνδρας</option>
+                    <option value="female">Γυναίκα</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="age">Age:</label>
+                <label for="age">Ηλικία:</label>
                 <input type="number" step="0.1" min="0.1" class="form-control form-control-sm" id="age" name="age" required>
             </div>
             <div class="form-group">
-                <label for="avg_glucose_level">Average Glucose Level:</label>
+                <label for="avg_glucose_level">Μέσα Επίπεδα Σακχάρου:</label>
                 <input type="number" step="0.01" min="40" class="form-control form-control-sm" id="avg_glucose_level" name="avg_glucose_level" required>
             </div>
             <div class="form-group">
-                <label for="heart_disease">Heart Disease:</label>
+                <label for="heart_disease">Καρδιακές Παθήσεις:</label>
                 <select class="form-control form-control-sm" id="heart_disease" name="heart_disease" required>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
+                    <option value="yes">Ναι</option>
+                    <option value="no">Όχι</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="hypertension">Hypertension:</label>
+                <label for="hypertension">Υπέρταση:</label>
                 <select class="form-control form-control-sm" id="hypertension" name="hypertension" required>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
+                    <option value="yes">Ναι</option>
+                    <option value="no">Όχι</option>
                 </select>
             </div>
             <div class="form-group">
@@ -72,40 +87,54 @@
                 <input type="number" step="0.01" min="5" class="form-control form-control-sm" id="bmi" name="bmi" required>
             </div>
             <div class="form-group">
-                <label for="work_type">Work Type:</label>
+                <label for="work_type">Τύπος Δουλειάς:</label>
                 <select class="form-control form-control-sm" id="work_type" name="work_type" required>
-                    <option value="private">Private</option>
-                    <option value="Self-employed">Self-employed</option>
-                    <option value="children">Children</option>
-                    <option value="Govt_job">Government Job</option>
-                    <option value="Never_worked">Never worked</option>
+                    <option value="private">Ιδιωτική</option>
+                    <option value="Self-employed">Αυτοαπασχολούμενος</option>
+                    <option value="children">Παιδί</option>
+                    <option value="Govt_job">Δημόσιος Υπάλληλος</option>
+                    <option value="Never_worked">Δεν δουλεύω</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="smoking_status">Smoking Status:</label>
+                <label for="smoking_status">Σχέση με το Κάπνισμα:</label>
                 <select class="form-control form-control-sm" id="smoking_status" name="smoking_status" required>
-                    <option value="never smoked">Never smoked</option>
-                    <option value="Unknown">Unknown</option>
-                    <option value="formerly smoked">Formerly smoked</option>
-                    <option value="smokes">Smokes</option>
+                    <option value="never smoked">Δεν έχω καπνίσει</option>
+                    <option value="Unknown">Άγνωστο</option>
+                    <option value="formerly smoked">Υπήρξα καπνιστής</option>
+                    <option value="smokes">Είμαι καπνιστής</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="residence_type">Residence Type:</label>
+                <label for="residence_type">Περιοχή Κατοικίας:</label>
                 <select class="form-control form-control-sm" id="residence_type" name="residence_type" required>
-                    <option value="rural">Rural</option>
-                    <option value="urban">Urban</option>
+                    <option value="rural">Περιαστική</option>
+                    <option value="urban">Αστική</option>
                 </select>
             </div>
             <div class="form-group">
-                <label for="ever_married">Ever Married:</label>
+                <label for="ever_married">Υπήρξες Παντρεμένος:</label>
                 <select class="form-control form-control-sm" id="ever_married" name="ever_married" required>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
+                    <option value="yes">Ναι</option>
+                    <option value="no">Οχι</option>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary btn-block">Predict</button>
+            <div class="btn-group">
+                <button type="submit" class="btn btn-primary">Πρόβλεψη</button>
+                <button type="reset" class="btn btn-secondary">Επαναφορά</button>
+            </div>
         </form>
+    </div>
+
+    <button id="disclaimer-button" class="btn btn-info" type="button" data-toggle="collapse" data-target="#disclaimer" aria-expanded="false" aria-controls="disclaimer">
+        ΑΠΟΠΟΙΗΣΗ ΕΥΘΥΝΗΣ
+    </button>
+    <div class="collapse" id="disclaimer">
+        <div class="card card-body">
+            <strong>ΑΠΟΠΟΙΗΣΗ ΕΥΘΥΝΗΣ</strong><br>
+            ΑΥΤΗ Η ΙΣΤΟΣΕΛΙΔΑ ΔΕΝ ΠΑΡΕΧΕΙ ΙΑΤΡΙΚΗ ΣΥΜΒΟΥΛΗ.
+            Οι πληροφορίες που περιέχονται σε αυτόν τον ιστότοπο προορίζονται μόνο για ενημερωτικούς σκοπούς. Καμία ένδειξη σε αυτόν τον ιστότοπο δεν προορίζεται να υποκαταστήσει επαγγελματικές ιατρικές συμβουλές, διάγνωση ή θεραπεία. Πάντα να ζητάτε τη συμβουλή του γιατρού σας ή άλλου ειδικευμένου παρόχου υγειονομικής περίθαλψης για οποιαδήποτε ερώτηση μπορεί να έχετε σχετικά με μια ιατρική κατάσταση ή θεραπεία και μην αγνοείτε ποτέ την επαγγελματική ιατρική συμβουλή ή καθυστερείτε να την αναζητήσετε για κάτι που έχετε διαβάσει σε αυτόν τον ιστότοπο.
+        </div>
     </div>
 
     <!-- Modal for Result -->
@@ -113,14 +142,14 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="resultModalLabel">Prediction Result</h5>
+                    <h5 class="modal-title" id="resultModalLabel">Αποτέλεσμα Πρόβλεψης</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body" id="result"></div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Κλείσιμο</button>
                 </div>
             </div>
         </div>
