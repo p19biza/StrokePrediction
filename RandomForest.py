@@ -21,42 +21,11 @@ y = data['stroke']
 # Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=14)
 
-# Create a decision tree classifier
+# Create a random forest classifier
 rf = RandomForestClassifier(random_state=42, n_estimators= 120, criterion='entropy', max_depth= 6)
 
 # Train the classifier on the training data
 rf.fit(X_train, y_train)
-
-# Calculate feature importances
-importances = rf.feature_importances_
-
-# Normalize the importances to a range of 1 to 10
-importances_normalized = 1 + 9 * (importances - np.min(importances)) / (np.max(importances) - np.min(importances))
-
-# Get the indices of the features sorted by importance
-indices = np.argsort(importances_normalized)[::-1]
-
-# Print the feature ranking
-print("Feature ranking (1-10):")
-
-ranking = []
-for f in range(X_train.shape[1]):
-    print(f"{f + 1}. feature {indices[f]} ({importances_normalized[indices[f]]}): {X_train.columns[indices[f]]}")
-    ranking.append((X_train.columns[indices[f]], importances_normalized[indices[f]]))
-
-# Convert the ranking to a DataFrame
-ranking_df = pd.DataFrame(ranking, columns=['feature', 'importance'])
-
-# Sort the DataFrame by importance
-ranking_df = ranking_df.sort_values('importance', ascending=False)
-
-# Plot the feature importances
-plt.figure(figsize=(10, 6))
-sns.barplot(x='importance', y='feature', data=ranking_df)
-plt.title('Feature Importance - Random Forest')
-plt.xlabel('Importance')
-plt.ylabel('Feature')
-plt.show()
 
 # Perform a 10-fold cross-validation on the training data
 scores = cross_val_score(rf, X_train, y_train, cv=10)

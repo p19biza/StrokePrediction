@@ -1,7 +1,15 @@
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import LabelEncoder
 from imblearn.under_sampling import RandomUnderSampler
-import matplotlib.pyplot as plt 
+from sklearn.feature_selection import SelectKBest, f_classif
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from xgboost import XGBClassifier
+from imblearn.ensemble import RUSBoostClassifier
+import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load the data
@@ -50,19 +58,19 @@ data = data[(data['bmi'] >= lower_bound) & (data['bmi'] <= upper_bound)]
 
 print(data.head())
 
-#One-hot encode the categorical columns
-#categorical_columns = ['gender', 'ever_married', 'work_type', 'Residence_type', 'smoking_status']
-#data = pd.get_dummies(data, columns=categorical_columns)
+# One-hot encode the categorical columns
+# categorical_columns = ['gender', 'ever_married', 'work_type', 'Residence_type', 'smoking_status']
+# data = pd.get_dummies(data, columns=categorical_columns)
 
 # Label encode the categorical columns
 categorical_columns = ['gender', 'ever_married', 'work_type', 'Residence_type', 'smoking_status']
 label_encoders = {}
-for col in categorical_columns:
+for column in categorical_columns:
     le = LabelEncoder()
-    data[col] = le.fit_transform(data[col])
-    label_encoders[col] = le
+    data[column] = le.fit_transform(data[column])
+    label_encoders[column] = le
 
-# Split the data into features and target
+# Split the data into features and target variable
 X = data.drop('stroke', axis=1)
 y = data['stroke']
 
@@ -78,9 +86,53 @@ X_res, y_res = rus.fit_resample(X, y)
 print("\nClass distribution after undersampling:")
 print(y_res.value_counts())
 
-# Save the preprocessed data
-new_data = pd.concat([X_res, y_res], axis=1)
-new_data.to_csv('/Users/gpbiz/Desktop/Project/PreprocessedDatasetUnder.csv', index=False)
+# Train Models on Selected Features
+# Split the data into training and validation sets
+X_train, X_val, y_train, y_val = train_test_split(X_res, y_res, test_size=0.2, random_state=42)
+
+# Define models
+models = [
+    RandomForestClassifier(random_state=42, n_estimators=120, criterion='entropy', max_depth=6),
+    DecisionTreeClassifier(random_state=42, max_depth=7),
+    AdaBoostClassifier(algorithm='SAMME', random_state=42),
+    RUSBoostClassifier(n_estimators=200, random_state=42, algorithm='SAMME.R'),
+    XGBClassifier(random_state=42, max_depth=4),
+    LogisticRegression(random_state=42, C=1, solver='liblinear')
+]
+
+# Initialize array to store aggregated feature importances
+feature_importances = np.zeros(len(X.columns))
+
+# Train models on the selected features and collect feature importances
+for model in models:
+    model.fit(X_train, y_train)
+    if hasattr(model, 'feature_importances_'):
+        importances = model.feature_importances_
+    elif hasattr(model, 'coef_'):
+        importances = np.abs(model.coef_[0])
+    feature_importances += importances
+
+# Average the feature importances
+feature_importances /= len(models)
+
+# Normalize the averaged importances to a scale of 1 to 10
+min_importance = feature_importances.min()
+max_importance = feature_importances.max()
+normalized_importances = 1 + 9 * (feature_importances - min_importance) / (max_importance - min_importance)
+
+# Plot normalized feature importances for all features
+plt.figure(figsize=(10, 6))
+sns.barplot(x=normalized_importances, y=X.columns, hue=X.columns, dodge=False, palette='viridis', legend=False)
+plt.title('Feature Importance')
+plt.xlabel('Importance')
+plt.ylabel('Feature')
+plt.xlim(1, 10)
+plt.show()
+
+# Save the preprocessed data with selected features
+new_data = pd.DataFrame(X_res, columns=X.columns)
+new_data['stroke'] = y_res.values
+new_data.to_csv('/Users/gpbiz/Desktop/Project/PreprocessedDatasetUnder_SelectedFeatures.csv', index=False)
 
 # Plot the distribution of the 'stroke' column after preprocessing
 stroke_counts_b = y_res.value_counts()
@@ -100,7 +152,7 @@ for i in range(len(stroke_counts_b)):
 plt.grid(False)
 plt.show()
 
-# Optional: Plot histograms and box plots for other features
+# Plot histograms and box plots for other features
 def plot_features_distribution(df, features):
     num_features = len(features)
     fig, axes = plt.subplots(2, num_features, figsize=(5 * num_features, 10))
@@ -127,5 +179,5 @@ for i in range(0, len(features), 3):
 
 pd.set_option('display.max_columns', None)
 
-# Verifcation of one-hot encoding
-print(new_data.head())
+#Verification of one-hot encoding
+#print(new_data.head())
